@@ -37,7 +37,7 @@ class FIFOLimitedArrayCache(object):
     def delete(self, key, raise_if_missing = False):
         with self._lock:
             if key in self._store:
-                self._store_bytes -= val.nbytes
+                self._store_bytes -= self._store[key].nbytes
                 del self._store[key]
             elif raise_if_missing:
                 raise Exception('key %s not found in cache' % repr(key))

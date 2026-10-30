@@ -80,11 +80,11 @@ def crop_to_square(frame):
     i_size,j_size = frame.shape[0],frame.shape[1]
     if j_size > i_size:
         # landscape
-        offset = (j_size - i_size) / 2
+        offset = (j_size - i_size) // 2
         return frame[:,offset:offset+i_size,:]
     else:
         # portrait
-        offset = (i_size - j_size) / 2
+        offset = (i_size - j_size) // 2
         return frame[offset:offset+j_size,:,:]
 
 
@@ -419,7 +419,7 @@ def cv2_typeset_text(data, lines, loc, between = ' ', string_spacing = 0, line_s
                 if fs.align == 'right':
                     locx += fs.width - boxsize[0]
                 elif fs.align == 'center':
-                    locx += (fs.width - boxsize[0])/2
+                    locx += (fs.width - boxsize[0])//2
             #print 'right boundary is', locx + boxsize[0], '(%s)' % fs.string
                     #                print 'HERE'
             right_edge = locx + boxsize[0]
@@ -435,7 +435,7 @@ def cv2_typeset_text(data, lines, loc, between = ' ', string_spacing = 0, line_s
                 break
                 ###line_num += 1
                 ###continue    
-            cv2.putText(data, fs.string, (locx,locy), fs.face, fs.fsize, fs.clr, fs.thick)
+            cv2.putText(data, fs.string, (int(locx),int(locy)), fs.face, fs.fsize, tuple(float(cc) for cc in fs.clr), fs.thick)
             maxy = max(maxy, boxsize[1])
             if fs.width is not None:
                 if fs.align == 'right':
@@ -443,7 +443,7 @@ def cv2_typeset_text(data, lines, loc, between = ' ', string_spacing = 0, line_s
                 elif fs.align == 'left':
                     locx += fs.width
                 elif fs.align == 'center':
-                    locx += fs.width - (fs.width - boxsize[0])/2
+                    locx += fs.width - (fs.width - boxsize[0])//2
             else:
                 locx += boxsize[0]
             locx += string_spacing

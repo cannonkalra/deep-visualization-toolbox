@@ -4,7 +4,7 @@ import numpy as np
 
 from codependent_thread import CodependentThread
 from image_misc import caffe_load_image, ensure_uint255_and_resize_to_fit
-from caffevis_helper import crop_to_corner
+from .caffevis_helper import crop_to_corner
 
 
 
@@ -23,7 +23,7 @@ class JPGVisLoadingThread(CodependentThread):
         self.debug_level = 0
         
     def run(self):
-        print 'JPGVisLoadingThread.run called'
+        print('JPGVisLoadingThread.run called')
         
         while not self.is_timed_out():
             with self.state.lock:
@@ -55,9 +55,9 @@ class JPGVisLoadingThread(CodependentThread):
             #resize_shape = (None, data_shape[1]) if self.settings.caffevis_jpgvis_stack_vert else (data_shape[0], None)
             # As a heuristic, instead just assume the three images are of the same shape.
             if self.settings.caffevis_jpgvis_stack_vert:
-                resize_shape = (data_shape[0]/3, data_shape[1])
+                resize_shape = (data_shape[0]//3, data_shape[1])
             else:
-                resize_shape = (data_shape[0], data_shape[1]/3)
+                resize_shape = (data_shape[0], data_shape[1]//3)
             
             # 0. e.g. regularized_opt/conv1/conv1_0037_montage.jpg
             jpg_path = os.path.join(self.settings.caffevis_unit_jpg_dir,
@@ -69,7 +69,7 @@ class JPGVisLoadingThread(CodependentThread):
                 img_corner = crop_to_corner(img, 2)
                 images[0] = ensure_uint255_and_resize_to_fit(img_corner, resize_shape)
             except IOError:
-                print '\nAttempted to load file %s but failed. To supress this warning, remove layer "%s" from settings.caffevis_jpgvis_layers' % (jpg_path, state_layer)
+                print('\nAttempted to load file %s but failed. To supress this warning, remove layer "%s" from settings.caffevis_jpgvis_layers' % (jpg_path, state_layer))
                 pass
 
             # 1. e.g. max_im/conv1/conv1_0037.jpg
@@ -114,4 +114,4 @@ class JPGVisLoadingThread(CodependentThread):
                 self.state.jpgvis_to_load_key = None
                 self.state.drawing_stale = True
 
-        print 'JPGVisLoadingThread.run: finished'
+        print('JPGVisLoadingThread.run: finished')

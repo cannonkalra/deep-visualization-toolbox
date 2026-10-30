@@ -1,7 +1,6 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import os
-import ipdb as pdb
 import errno
 from datetime import datetime
 
@@ -28,8 +27,6 @@ def hardcoded_get():
                            channel_swap=(2,1,0),
                            raw_scale=255,
                            image_dims=(256, 256))
-    net.set_phase_test()
-    net.set_mode_cpu()
     labels = load_labels()
 
     return net, imagenet_mean, labels, datadir, filelist
@@ -67,7 +64,7 @@ class MaxTracker(object):
 
         #insertion_idx = zeros((n_channels,))
         #pdb.set_trace()
-        for ii in xrange(n_channels):
+        for ii in range(n_channels):
             idx = np.searchsorted(self.max_vals[ii], data_unroll[ii, maxes[ii]])
             if idx == 0:
                 # Smaller than all 10
@@ -128,17 +125,17 @@ def load_file_list(filelist):
 
 def scan_images_for_maxes(net, datadir, filelist, n_top):
     image_filenames, image_labels = load_file_list(filelist)
-    print 'Scanning %d files' % len(image_filenames)
-    print '  First file', os.path.join(datadir, image_filenames[0])
+    print('Scanning %d files' % len(image_filenames))
+    print('  First file', os.path.join(datadir, image_filenames[0]))
 
     tracker = NetMaxTracker(n_top = n_top)
-    for image_idx in xrange(len(image_filenames)):
+    for image_idx in range(len(image_filenames)):
         filename = image_filenames[image_idx]
         image_class = image_labels[image_idx]
         #im = caffe.io.load_image('../../data/ilsvrc12/mini_ilsvrc_valid/sized/ILSVRC2012_val_00000610.JPEG')
         do_print = (image_idx % 100 == 0)
         if do_print:
-            print '%s   Image %d/%d' % (datetime.now().ctime(), image_idx, len(image_filenames))
+            print('%s   Image %d/%d' % (datetime.now().ctime(), image_idx, len(image_filenames)))
         with WithTimer('Load image', quiet = not do_print):
             im = caffe.io.load_image(os.path.join(datadir, filename))
         with WithTimer('Predict   ', quiet = not do_print):
@@ -146,7 +143,7 @@ def scan_images_for_maxes(net, datadir, filelist, n_top):
         with WithTimer('Update    ', quiet = not do_print):
             tracker.update(net, image_idx, image_class)
 
-    print 'done!'
+    print('done!')
     return tracker
 
 
@@ -156,10 +153,10 @@ def save_representations(net, datadir, filelist, layer, first_N = None):
     if first_N is None:
         first_N = len(image_filenames)
     assert first_N <= len(image_filenames)
-    image_indices = range(first_N)
-    print 'Scanning %d files' % len(image_indices)
+    image_indices = list(range(first_N))
+    print('Scanning %d files' % len(image_indices))
     assert len(image_indices) > 0
-    print '  First file', os.path.join(datadir, image_filenames[image_indices[0]])
+    print('  First file', os.path.join(datadir, image_filenames[image_indices[0]]))
 
     indices = None
     rep = None
@@ -168,7 +165,7 @@ def save_representations(net, datadir, filelist, layer, first_N = None):
         image_class = image_labels[image_idx]
         do_print = (image_idx % 10 == 0)
         if do_print:
-            print '%s   Image %d/%d' % (datetime.now().ctime(), image_idx, len(image_indices))
+            print('%s   Image %d/%d' % (datetime.now().ctime(), image_idx, len(image_indices)))
         with WithTimer('Load image', quiet = not do_print):
             im = caffe.io.load_image(os.path.join(datadir, filename))
         with WithTimer('Predict   ', quiet = not do_print):
@@ -181,7 +178,7 @@ def save_representations(net, datadir, filelist, layer, first_N = None):
             indices[ii] = image_idx
             rep[ii] = net.blobs[layer].data[0]
 
-    print 'done!'
+    print('done!')
     return indices,rep
 
 
@@ -190,7 +187,7 @@ def get_max_data_extent(net, layer, rc, is_conv):
     '''Gets the maximum size of the data layer that can influence a unit on layer.'''
     if is_conv:
         conv_size = net.blobs[layer].data.shape[2:4]        # e.g. (13,13) for conv5
-        layer_slice_middle = (conv_size[0]/2,conv_size[0]/2+1, conv_size[1]/2,conv_size[1]/2+1)   # e.g. (6,7,6,7,), the single center unit
+        layer_slice_middle = (conv_size[0]//2,conv_size[0]//2+1, conv_size[1]//2,conv_size[1]//2+1)   # e.g. (6,7,6,7,), the single center unit
         data_slice = rc.convert_region(layer, 'data', layer_slice_middle)
         return data_slice[1]-data_slice[0], data_slice[3]-data_slice[2]   # e.g. (163, 163) for conv5
     else:
@@ -207,8 +204,8 @@ def output_max_patches(max_tracker, net, layer, idx_begin, idx_end, num_top, dat
     rc = RegionComputer()
     
     image_filenames, image_labels = load_file_list(filelist)
-    print 'Loaded filenames and labels for %d files' % len(image_filenames)
-    print '  First file', os.path.join(datadir, image_filenames[0])
+    print('Loaded filenames and labels for %d files' % len(image_filenames))
+    print('  First file', os.path.join(datadir, image_filenames[0]))
 
     num_top_in_mt = mt.max_locs.shape[1]
     assert num_top <= num_top_in_mt, 'Requested %d top images but MaxTracker contains only %d' % (num_top, num_top_in_mt)
@@ -225,7 +222,7 @@ def output_max_patches(max_tracker, net, layer, idx_begin, idx_end, num_top, dat
         if do_info:
             info_filename = os.path.join(unit_dir, 'info.txt')
             info_file = open(info_filename, 'w')
-            print >>info_file, '# is_conv val image_idx image_class i(if is_conv) j(if is_conv) filename'
+            print('# is_conv val image_idx image_class i(if is_conv) j(if is_conv) filename', file=info_file)
 
         # iterate through maxes from highest (at end) to lowest
         for max_idx_0 in range(num_top):
@@ -238,7 +235,7 @@ def output_max_patches(max_tracker, net, layer, idx_begin, idx_end, num_top, dat
             filename = image_filenames[im_idx]
             do_print = (max_idx_0 == 0)
             if do_print:
-                print '%s   Output file/image(s) %d/%d' % (datetime.now().ctime(), cc * num_top, n_total_images)
+                print('%s   Output file/image(s) %d/%d' % (datetime.now().ctime(), cc * num_top, n_total_images))
 
             if mt.is_conv:
                 # Compute the focus area of the data layer
@@ -272,12 +269,12 @@ def output_max_patches(max_tracker, net, layer, idx_begin, idx_end, num_top, dat
 
 
             if do_info:
-                print >>info_file, 1 if mt.is_conv else 0, '%.6f' % mt.max_vals[channel_idx, max_idx],
+                print(1 if mt.is_conv else 0, '%.6f' % mt.max_vals[channel_idx, max_idx], end=' ', file=info_file)
                 if mt.is_conv:
-                    print >>info_file, '%d %d %d %d' % tuple(mt.max_locs[channel_idx, max_idx]),
+                    print('%d %d %d %d' % tuple(mt.max_locs[channel_idx, max_idx]), end=' ', file=info_file)
                 else:
-                    print >>info_file, '%d %d' % tuple(mt.max_locs[channel_idx, max_idx]),
-                print >>info_file, filename
+                    print('%d %d' % tuple(mt.max_locs[channel_idx, max_idx]), end=' ', file=info_file)
+                print(filename, file=info_file)
 
             if not (do_maxes or do_deconv or do_deconv_norm or do_backprop or do_backprop_norm):
                 continue
@@ -293,7 +290,7 @@ def output_max_patches(max_tracker, net, layer, idx_begin, idx_end, num_top, dat
             else:
                 reproduced_val = net.blobs[layer].data[0,channel_idx]
             if abs(reproduced_val - recorded_val) > .1:
-                print 'Warning: recorded value %s is suspiciously different from reproduced value %s. Is the filelist the same?' % (recorded_val, reproduced_val)
+                print('Warning: recorded value %s is suspiciously different from reproduced value %s. Is the filelist the same?' % (recorded_val, reproduced_val))
 
             if do_maxes:
                 #grab image from data layer, not from im (to ensure preprocessing / center crop details match between image and deconv/backprop)
@@ -315,7 +312,7 @@ def output_max_patches(max_tracker, net, layer, idx_begin, idx_end, num_top, dat
                 out_arr = np.zeros((3,size_ii,size_jj), dtype='float32')
                 out_arr[:, out_ii_start:out_ii_end, out_jj_start:out_jj_end] = net.blobs['data'].diff[0,:,data_ii_start:data_ii_end,data_jj_start:data_jj_end]
                 if out_arr.max() == 0:
-                    print 'Warning: Deconv out_arr in range', out_arr.min(), 'to', out_arr.max(), 'ensure force_backward: true in prototxt'
+                    print('Warning: Deconv out_arr in range', out_arr.min(), 'to', out_arr.max(), 'ensure force_backward: true in prototxt')
                 if do_deconv:
                     with WithTimer('Save img  ', quiet = not do_print):
                         save_caffe_image(out_arr, os.path.join(unit_dir, 'deconv_%03d.png' % max_idx_0),
@@ -334,7 +331,7 @@ def output_max_patches(max_tracker, net, layer, idx_begin, idx_end, num_top, dat
                 out_arr = np.zeros((3,size_ii,size_jj), dtype='float32')
                 out_arr[:, out_ii_start:out_ii_end, out_jj_start:out_jj_end] = net.blobs['data'].diff[0,:,data_ii_start:data_ii_end,data_jj_start:data_jj_end]
                 if out_arr.max() == 0:
-                    print 'Warning: Deconv out_arr in range', out_arr.min(), 'to', out_arr.max(), 'ensure force_backward: true in prototxt'
+                    print('Warning: Deconv out_arr in range', out_arr.min(), 'to', out_arr.max(), 'ensure force_backward: true in prototxt')
                 if do_backprop:
                     with WithTimer('Save img  ', quiet = not do_print):
                         save_caffe_image(out_arr, os.path.join(unit_dir, 'backprop_%03d.png' % max_idx_0),

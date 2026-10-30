@@ -5,9 +5,6 @@
 
 
 
-# Set this to point to your compiled checkout of caffe
-caffevis_caffe_root      = '/path/to/caffe'
-
 # Load model: caffenet-yos
 # Path to caffe deploy prototxt file. Minibatch size should be 1.
 caffevis_deploy_prototxt = '%DVT_ROOT%/models/caffenet-yos/caffenet-yos-deploy.prototxt'
@@ -26,7 +23,7 @@ caffevis_jpgvis_remap    = {'pool1': 'conv1', 'pool2': 'conv2', 'pool5': 'conv5'
 def caffevis_layer_pretty_name_fn(name):
     return name.replace('pool','p').replace('norm','n')
 
-# Use GPU? Default is True.
+# Use GPU (Apple MPS or CUDA, if available)? Default is True.
 #caffevis_mode_gpu = True
 # Display tweaks.
 # Scale all window panes in UI by this factor

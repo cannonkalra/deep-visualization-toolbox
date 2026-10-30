@@ -95,15 +95,15 @@ if global_scale != 1.0:
 # All window configuation information is now contained in the
 # window_panes variable. Print if desired:
 if debug_window_panes:
-    print 'Final window panes and locations/sizes (i, j, i_size, j_size):'
+    print('Final window panes and locations/sizes (i, j, i_size, j_size):')
     for pane in window_panes:
-        print '  Pane: %s' % repr(pane)
+        print('  Pane: %s' % repr(pane))
 
 help_pane_loc = locals().get('help_pane_loc', (.07, .07, .86, .86))    # as a fraction of main window
 window_background = locals().get('window_background', (.2, .2, .2))
 stale_background = locals().get('stale_background',  (.3, .3, .2))
 static_files_dir = locals().get('static_files_dir', 'input_images')
-static_files_regexp = locals().get('static_files_regexp', '.*\.(jpg|jpeg|png)$')
+static_files_regexp = locals().get('static_files_regexp', r'.*\.(jpg|jpeg|png)$')
 static_files_ignore_case = locals().get('static_files_ignore_case', True)
 # True to stretch to square, False to crop to square. (Can change at
 # runtime via 'stretch_mode' key.)
@@ -161,7 +161,8 @@ help_thick = locals().get('help_thick', 1)
 #
 ####################################
 
-# Whether to use GPU mode (if True) or CPU mode (if False)
+# Whether to use GPU mode (if True: Apple GPU via MPS, or CUDA, when
+# available) or CPU mode (if False)
 caffevis_mode_gpu = locals().get('caffevis_mode_gpu', True)
 
 # Data mean, if any, to be subtracted from input image file / webcam
@@ -215,11 +216,11 @@ if 'caffevis_deploy_prototxt' in locals():
     caffevis_deploy_prototxt = caffevis_deploy_prototxt.replace('%DVT_ROOT%', dvt_root)
 if 'caffevis_network_weights' in locals():
     caffevis_network_weights = caffevis_network_weights.replace('%DVT_ROOT%', dvt_root)
-if isinstance(caffevis_data_mean, basestring):
+if isinstance(caffevis_data_mean, str):
     caffevis_data_mean = caffevis_data_mean.replace('%DVT_ROOT%', dvt_root)
-if isinstance(caffevis_labels, basestring):
+if isinstance(caffevis_labels, str):
     caffevis_labels = caffevis_labels.replace('%DVT_ROOT%', dvt_root)
-if isinstance(caffevis_unit_jpg_dir, basestring):
+if isinstance(caffevis_unit_jpg_dir, str):
     caffevis_unit_jpg_dir = caffevis_unit_jpg_dir.replace('%DVT_ROOT%', dvt_root)
 
 # Pause Caffe forward/backward computation for this many seconds after a keypress. This is to keep the processor free for a brief period after a keypress, which allow the interface to feel much more responsive. After this period has passed, Caffe resumes computation, in CPU mode often occupying all cores. Default: .1
@@ -320,11 +321,10 @@ def assert_in_settings(setting_name):
     if not setting_name in bound_locals:
         raise Exception('The "%s" setting is required; be sure to define it in settings_local.py' % setting_name)
 
-assert_in_settings('caffevis_caffe_root')
 assert_in_settings('caffevis_deploy_prototxt')
 assert_in_settings('caffevis_network_weights')
 assert_in_settings('caffevis_data_mean')
 
-# Check that caffe directory actually exists
-if not os.path.exists(caffevis_caffe_root):
-    raise Exception('The Caffe directory specified in settings_local.py, %s, does not exist. Set the caffevis_caffe_root variable in your settings_local.py to the path of your compiled Caffe checkout.' % caffevis_caffe_root)
+# caffevis_caffe_root is no longer needed: networks run on PyTorch via torchcaffe
+if 'caffevis_caffe_root' in bound_locals:
+    print('Note: caffevis_caffe_root in settings_local.py is no longer used and can be removed.')

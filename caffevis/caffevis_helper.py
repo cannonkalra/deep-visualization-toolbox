@@ -34,7 +34,7 @@ def get_pretty_layer_name(settings, layer_name):
     if hasattr(settings, 'caffevis_layer_pretty_name_fn'):
         ret = settings.caffevis_layer_pretty_name_fn(ret)
     if ret != layer_name:
-        print '  Prettified layer name: "%s" -> "%s"' % (layer_name, ret)
+        print('  Prettified layer name: "%s" -> "%s"' % (layer_name, ret))
     return ret
 
 
@@ -53,7 +53,7 @@ def crop_to_corner(img, corner, small_padding = 1, large_padding = 2):
     assert corner in (0,1,2,3), 'specify corner 0, 1, 2, or 3'
     assert img.shape[0] == img.shape[1], 'img is not square'
     assert img.shape[0] % 2 == 0, 'even number of pixels assumption violated'
-    half_size = img.shape[0]/2
+    half_size = img.shape[0]//2
     big_ii = 0 if corner in (0,1) else 1
     big_jj = 0 if corner in (0,2) else 1
     tp = small_padding + large_padding
@@ -77,14 +77,14 @@ def load_sprite_image(img_path, rows_cols, n_sprites = None):
     img = caffe_load_image(img_path, color = True, as_uint = True)
     assert img.shape[0] % rows == 0, 'sprite image has shape %s which is not divisible by rows_cols %' % (img.shape, rows_cols)
     assert img.shape[1] % cols == 0, 'sprite image has shape %s which is not divisible by rows_cols %' % (img.shape, rows_cols)
-    sprite_height = img.shape[0] / rows
-    sprite_width  = img.shape[1] / cols
+    sprite_height = img.shape[0] // rows
+    sprite_width  = img.shape[1] // cols
     sprite_channels = img.shape[2]
 
     ret = np.zeros((n_sprites, sprite_height, sprite_width, sprite_channels), dtype = img.dtype)
-    for idx in xrange(n_sprites):
+    for idx in range(n_sprites):
         # Row-major order
-        ii = idx / cols
+        ii = idx // cols
         jj = idx % cols
         ret[idx] = img[ii*sprite_height:(ii+1)*sprite_height,
                        jj*sprite_width:(jj+1)*sprite_width, :]
@@ -114,10 +114,10 @@ def check_force_backward_true(prototxt_file):
                 break
 
     if not found:
-        print '\n\nWARNING: the specified prototxt'
-        print '"%s"' % prototxt_file
-        print 'does not contain the line "force_backward: true". This may result in backprop'
-        print 'and deconv producing all zeros at the input layer. You may want to add this line'
-        print 'to your prototxt file before continuing to force backprop to compute derivatives'
-        print 'at the data layer as well.\n\n'
+        print('\n\nWARNING: the specified prototxt')
+        print('"%s"' % prototxt_file)
+        print('does not contain the line "force_backward: true". This may result in backprop')
+        print('and deconv producing all zeros at the input layer. You may want to add this line')
+        print('to your prototxt file before continuing to force backprop to compute derivatives')
+        print('at the data layer as well.\n\n')
 

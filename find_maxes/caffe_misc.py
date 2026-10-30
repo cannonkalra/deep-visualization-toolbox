@@ -8,22 +8,22 @@ import numpy as np
 def shownet(net):
     '''Print some stats about a net and its activations'''
     
-    print '%-41s%-31s%s' % ('', 'acts', 'act diffs')
-    print '%-45s%-31s%s' % ('', 'params', 'param diffs')
-    for k, v in net.blobs.items():
+    print('%-41s%-31s%s' % ('', 'acts', 'act diffs'))
+    print('%-45s%-31s%s' % ('', 'params', 'param diffs'))
+    for k, v in list(net.blobs.items()):
         if k in net.params:
             params = net.params[k]
             for pp, blob in enumerate(params):
                 if pp == 0:
-                    print '  ', 'P: %-5s'%k,
+                    print('  ', 'P: %-5s'%k, end=' ')
                 else:
-                    print ' ' * 11,
-                print '%-32s' % repr(blob.data.shape),
-                print '%-30s' % ('(%g, %g)' % (blob.data.min(), blob.data.max())),
-                print '(%g, %g)' % (blob.diff.min(), blob.diff.max())
-        print '%-5s'%k, '%-34s' % repr(v.data.shape),
-        print '%-30s' % ('(%g, %g)' % (v.data.min(), v.data.max())),
-        print '(%g, %g)' % (v.diff.min(), v.diff.max())
+                    print(' ' * 11, end=' ')
+                print('%-32s' % repr(blob.data.shape), end=' ')
+                print('%-30s' % ('(%g, %g)' % (blob.data.min(), blob.data.max())), end=' ')
+                print('(%g, %g)' % (blob.diff.min(), blob.diff.max()))
+        print('%-5s'%k, '%-34s' % repr(v.data.shape), end=' ')
+        print('%-30s' % ('(%g, %g)' % (v.data.min(), v.data.max())), end=' ')
+        print('(%g, %g)' % (v.diff.min(), v.diff.max()))
 
 
 
@@ -112,10 +112,10 @@ class RegionComputer(object):
         for ii in range(from_idx, to_idx, -1):
             converter = self.converters[ii]
             if verbose:
-                print 'pushing', self.names[ii], 'region', ret, 'through converter'
+                print('pushing', self.names[ii], 'region', ret, 'through converter')
             ret = converter(ret)
         if verbose:
-            print 'Final region at ', self.names[to_idx], 'is', ret
+            print('Final region at ', self.names[to_idx], 'is', ret)
 
         return ret
 
@@ -146,4 +146,4 @@ def save_caffe_image(img, filename, autoscale = True, autoscale_center = None):
         img = img.copy()
         img -= img.min()
         img *= 1.0 / (img.max() + 1e-10)
-    skimage.io.imsave(filename, img)
+    skimage.io.imsave(filename, skimage.img_as_ubyte(np.clip(img, 0, 1)), check_contrast=False)

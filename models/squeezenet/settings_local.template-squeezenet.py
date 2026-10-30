@@ -5,9 +5,6 @@
 
 
 
-# Set this to point to your compiled checkout of caffe
-caffevis_caffe_root      = '/path/to/caffe'
-
 # Load model: squeezenet
 # Path to caffe deploy prototxt file. Minibatch size should be 1.
 caffevis_deploy_prototxt = '%DVT_ROOT%/models/squeezenet/deploy.prototxt'
@@ -43,7 +40,7 @@ window_panes = (
 )
 caffevis_layers_aspect_ratio = float(window_panes[-1][1][3])/window_panes[-1][1][2]  # Actual ratio from caffevis_layers
 
-# Use GPU? Default is True.
+# Use GPU (Apple MPS or CUDA, if available)? Default is True.
 #caffevis_mode_gpu = True
 # Display tweaks.
 # Scale all window panes in UI by this factor

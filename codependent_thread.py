@@ -19,7 +19,7 @@ class CodependentThread(Thread):
         with self.heartbeat_lock:
             now = time.time()
             if now - self.last_beat > self.heartbeat_timeout:
-                print '%s instance %s timed out after %s seconds (%s - %s = %s)' % (self.__class__.__name__, self, self.heartbeat_timeout, now, self.last_beat, now - self.last_beat)
+                print('%s instance %s timed out after %s seconds (%s - %s = %s)' % (self.__class__.__name__, self, self.heartbeat_timeout, now, self.last_beat, now - self.last_beat))
                 return True
             else:
                 return False

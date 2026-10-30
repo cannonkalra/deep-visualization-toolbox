@@ -1,8 +1,7 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import argparse
-import ipdb as pdb
-import cPickle as pickle
+import pickle
 
 from loaders import load_imagenet_mean, load_labels, caffe
 from jby_misc import WithTimer
@@ -22,17 +21,18 @@ def main():
     #parser.add_argument('--mean', type = str, default = '', help = 'data mean to load')
     args = parser.parse_args()
 
+    # Select the device before creating the net; torchcaffe nets stay on the device they were created on
+    if args.gpu:
+        caffe.set_mode_gpu()
+    else:
+        caffe.set_mode_cpu()
+
     imagenet_mean = load_imagenet_mean()
     net = caffe.Classifier(args.net_prototxt, args.net_weights,
                            mean=imagenet_mean,
                            channel_swap=(2,1,0),
                            raw_scale=255,
                            image_dims=(256, 256))
-
-    if args.gpu:
-        caffe.set_mode_gpu()
-    else:
-        caffe.set_mode_cpu()
 
     with WithTimer('Scanning images'):
         max_tracker = scan_images_for_maxes(net, args.datadir, args.filelist, args.N)

@@ -26,23 +26,23 @@ img = cv2.imread('input_images/ILSVRC2012_val_00000610.jpg')    # load example i
 
 
 def check_key(key_str):
-    print '  Press key %5s: ' % key_str,
+    print('  Press key %5s: ' % key_str, end=' ')
     sys.stdout.flush()
     while True:
-        keycode = cv2.waitKey(0)
+        keycode = getattr(cv2, "waitKeyEx", cv2.waitKey)(0)
         label, masked_vals = bindings.get_key_label_from_keycode(keycode, extra_info = True)
         if label and ('shift' in label or 'ctrl' in label):
-            print '(ignoring modifier %s)' % label,
+            print('(ignoring modifier %s)' % label, end=' ')
             sys.stdout.flush()
         else:
             break
     masked_vals_pp = ', '.join(['%d (%s)' % (mv, hex(mv)) for mv in masked_vals])
     if label == key_str:
-        print '  %d (%s) matched %s' % (keycode, hex(keycode), label)
+        print('  %d (%s) matched %s' % (keycode, hex(keycode), label))
     elif label is not None:
-        print '* %d (%s) failed, matched key %s (masked vals tried: %s)' % (keycode, hex(keycode), label, masked_vals_pp)
+        print('* %d (%s) failed, matched key %s (masked vals tried: %s)' % (keycode, hex(keycode), label, masked_vals_pp))
     else:
-        print '* %d (%s) failed, no match found (masked vals tried: %s)' % (keycode, hex(keycode), masked_vals_pp)
+        print('* %d (%s) failed, no match found (masked vals tried: %s)' % (keycode, hex(keycode), masked_vals_pp))
     #print 'Got:', label
     #found = False
     #for k,v in keys.Key.__dict__.iteritems():
@@ -58,7 +58,7 @@ def check_key(key_str):
 
     
 def main():
-    print 'Click on the picture and then carefully push the following keys:'
+    print('Click on the picture and then carefully push the following keys:')
     cv2.imshow('img',img)
     check_key('j')
     check_key('k')

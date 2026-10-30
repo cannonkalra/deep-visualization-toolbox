@@ -1,8 +1,7 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 import argparse
-import ipdb as pdb
-import cPickle as pickle
+import pickle
 
 from loaders import load_imagenet_mean, load_labels, caffe
 from jby_misc import WithTimer
