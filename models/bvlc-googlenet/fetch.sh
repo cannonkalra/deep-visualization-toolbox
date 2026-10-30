@@ -10,7 +10,11 @@ function fetch_file() {
         echo "$url: file already downloaded (remove $filename to force re-download)"
     else
         echo "$url: fetching..."
-        wget -O "$filename" "$url"
+        if command -v wget > /dev/null; then
+            wget -O "$filename" "$url"
+        else
+            curl -fL -o "$filename" "$url"
+        fi
         echo "$url: done."
     fi
 }

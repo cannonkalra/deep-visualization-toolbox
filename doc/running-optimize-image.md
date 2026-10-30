@@ -4,10 +4,10 @@
 
 The optimization results in the paper may be reproduced using the `optimize_image.py` script. Table 1 of the paper gives four sets of recommended regularization hyperparameters. These may be implemented using the following combination of command line flags (in the same order as Table 1):
 
-    ./optimize_image.py --decay 0      --blur-radius 0.5 --blur-every 4  --small-norm-percentile 50     --max-iter 500  --lr-policy progress --lr-params "{'max_lr': 100.0, 'desired_prog': 2.0}"
-    ./optimize_image.py --decay 0.3    --blur-radius 0   --blur-every 0  --small-norm-percentile 20     --max-iter 750  --lr-policy constant --lr-params "{'lr': 100.0}"
-    ./optimize_image.py --decay 0.0001 --blur-radius 1.0 --blur-every 4                                 --max-iter 1000 --lr-policy constant --lr-params "{'lr': 100.0}"
-    ./optimize_image.py --decay 0      --blur-radius 0.5 --blur-every 4  --px-abs-benefit-percentile 90 --max-iter 1000 --lr-policy progress --lr-params "{'max_lr': 100000000, 'desired_prog': 2.0}"
+    uv run ./optimize_image.py --decay 0      --blur-radius 0.5 --blur-every 4  --small-norm-percentile 50     --max-iter 500  --lr-policy progress --lr-params "{'max_lr': 100.0, 'desired_prog': 2.0}"
+    uv run ./optimize_image.py --decay 0.3    --blur-radius 0   --blur-every 0  --small-norm-percentile 20     --max-iter 750  --lr-policy constant --lr-params "{'lr': 100.0}"
+    uv run ./optimize_image.py --decay 0.0001 --blur-radius 1.0 --blur-every 4                                 --max-iter 1000 --lr-policy constant --lr-params "{'lr': 100.0}"
+    uv run ./optimize_image.py --decay 0      --blur-radius 0.5 --blur-every 4  --px-abs-benefit-percentile 90 --max-iter 1000 --lr-policy progress --lr-params "{'max_lr': 100000000, 'desired_prog': 2.0}"
 
 The hyperparameters given on the third line are the ones used for most of the image in the paper. This set of hyperparameters produced smooth images by using a wide 1 pixel radius blur applied every 4 steps. See below for a complete description of other available `optimize_image.py` options.
 
@@ -16,7 +16,7 @@ The hyperparameters given on the third line are the ones used for most of the im
 
 Using a fresh checkout with the default model downloaded, we can generate an image of a flamingo using the following command:
 
-    ./optimize_image.py --push-layer fc8 --push-channel 130                  \
+    uv run ./optimize_image.py --push-layer fc8 --push-channel 130                  \
         --decay 0.0001 --blur-radius 1.0 --blur-every 4                      \
         --max-iter 1000 --lr-policy constant --lr-params "{'lr': 100.0}"
         
@@ -146,7 +146,7 @@ The text file output is provided just for convenience. To process the fields pro
 
 Below is a description of all available options in `optimize_image.py` script (annotated output of `./optimize_image.py --help`):
 
-    usage: optimize_image.py [-h] [--caffe-root CAFFE_ROOT] [--deploy-proto DEPLOY_PROTO]
+    usage: optimize_image.py [-h] [--gpu | --no-gpu] [--deploy-proto DEPLOY_PROTO]
                              [--net-weights NET_WEIGHTS] [--mean MEAN]
                              [--channel-swap-to-rgb CHANNEL_SWAP_TO_RGB] [--data-size DATA_SIZE]
                              [--start-at {mean_plus_rand,randu,mean}] [--rand-seed RAND_SEED]
@@ -169,8 +169,7 @@ Below is a description of all available options in `optimize_image.py` script (a
       
 Which trained network to load
 
-      --caffe-root CAFFE_ROOT
-                            Path to caffe root directory. (default: <read from settings>)
+      --gpu, --no-gpu       Run on the GPU (Apple MPS or CUDA) if available. (default: <read from settings>)
       --deploy-proto DEPLOY_PROTO
                             Path to caffe network prototxt. (default: <read from settings>)
       --net-weights NET_WEIGHTS
@@ -188,7 +187,8 @@ Which trained network to load
                             (0,1,2) if your network is trained for RGB, (2,1,0) if it is trained for
                             BGR. (default: (2,1,0))
       --data-size DATA_SIZE
-                            Size of network input. (default: (227,227))
+                            Size of network input, e.g. "(227,227)". None to use the input size
+                            from the network prototxt. (default: None)
                             
 Where to start optimization
 
